@@ -1,0 +1,33 @@
+version: 3
+
+tasks:
+  build:consumer:
+    cmds:
+      - go build -o ./bin/consumer cmd/consumer/consumer.go
+    sources:
+      - cmd/consumer/consumer.go
+      - internal/**/*.go
+    generates:
+      - bin/consumer
+
+  build:publisher:
+    cmds:
+      - go build -o ./bin/publisher cmd/publisher/publisher.go
+    sources:
+      - cmd/publisher/publisher.go
+      - internal/**/*.go
+    generates:
+      - bin/publisher
+
+  build:all:
+    cmds:
+      - task: build:consumer
+      - task: build:publisher
+
+  run:consumer:
+    cmds:
+      - air -c ./cmd/consumer/.air.toml
+
+  run:publisher:
+    cmds:
+      - air -c ./cmd/publisher/.air.toml
