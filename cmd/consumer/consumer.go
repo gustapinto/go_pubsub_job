@@ -3,38 +3,16 @@ package main
 import (
 	jobapp "go_pubsub_job/internal/app/job"
 	"go_pubsub_job/internal/domain/job"
+	"go_pubsub_job/internal/domain/result"
 	"log"
 )
 
 func main() {
-	jobs := []job.Job{
-		{
-			Id:       1,
-			Executor: "SlaJobExecutor",
-			Variables: map[string]any{
-				"message": "Hello World!",
-			},
-		},
-		{
-			Id:        2,
-			Executor:  "SlaJobExecutor",
-			Variables: map[string]any{},
-		},
-		{
-			Id:       3,
-			Executor: "SlaJobExecutor",
-			Variables: map[string]any{
-				"message": "Hello World!",
-			},
-		},
-		{
-			Id:       4,
-			Executor: "foobar",
-			Variables: map[string]any{
-				"message": "Hello World!",
-			},
-		},
-	}
+	results := make([]result.Result, 0)
+	jobs := job.NewSubtitleScrapingJobFromUrls([]string{
+		"https://g1.globo.com/",
+		"https://www.bbc.com/portuguese",
+	})
 
 	for _, j := range jobs {
 		executor, err := jobapp.MakeJobExecutor(j)
@@ -43,9 +21,14 @@ func main() {
 			continue
 		}
 
-		if err := executor.Execute(j); err != nil {
+		result, err := executor.Execute(j)
+		if err != nil {
 			log.Printf("Err: %+v\n", err)
 			continue
 		}
+
+		results = append(results, result)
+
+		log.Printf("%+v\n", result)
 	}
 }

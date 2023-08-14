@@ -1,7 +1,9 @@
 package job
 
+import "go_pubsub_job/internal/domain/result"
+
 type Executor interface {
-	Execute(Job) error
+	Execute(Job) (result.Result, error)
 }
 
 type Job struct {

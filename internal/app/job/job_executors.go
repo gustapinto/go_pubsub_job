@@ -3,27 +3,45 @@ package job
 import (
 	"errors"
 	"go_pubsub_job/internal/domain/job"
-	"log"
+	"go_pubsub_job/internal/domain/result"
+
+	"github.com/gocolly/colly/v2"
+)
+
+var (
+	ErrInvalidUrlParse = errors.New("failed to parse url to string")
 )
 
 func MakeJobExecutor(_job job.Job) (job.Executor, error) {
 	switch _job.Executor {
-	case "SlaJobExecutor":
-		return &SlaJobExecutor{}, nil
+	case "SubtitleScrapingExecutor":
+		return &SubtitleScrapingExecutor{}, nil
 	}
 
 	return nil, errors.New("invalid job executor")
 }
 
-type SlaJobExecutor struct{}
+type SubtitleScrapingExecutor struct{}
 
-func (e *SlaJobExecutor) Execute(_job job.Job) error {
-	message, exists := _job.Variables["message"]
-	if !exists {
-		return errors.New("message key must be present in the job variables")
+func (j *SubtitleScrapingExecutor) Execute(_job job.Job) (result.Result, error) {
+	jobResult := result.NewRunningResult()
+	collector := colly.NewCollector()
+	subtitles := make([]string, 0)
+
+	collector.OnHTML("h2", func(h *colly.HTMLElement) {
+		subtitles = append(subtitles, h.Text)
+	})
+
+	url, ok := _job.Variables["url"].(string)
+	if !ok {
+		return jobResult.FailedWithError(ErrInvalidUrlParse), ErrInvalidUrlParse
 	}
 
-	log.Printf("Job %d: %s", _job.Id, message)
+	if err := collector.Visit(url); err != nil {
+		return jobResult.FailedWithError(err), nil
+	}
 
-	return nil
+	return jobResult.SuccessWithData(map[string]any{
+		"subtitles": subtitles,
+	}), nil
 }
