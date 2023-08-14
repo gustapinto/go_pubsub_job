@@ -3,12 +3,11 @@ package main
 import (
 	jobapp "go_pubsub_job/internal/app/job"
 	"go_pubsub_job/internal/domain/job"
-	"go_pubsub_job/internal/domain/result"
 	"log"
 )
 
 func main() {
-	results := make([]result.Result, 0)
+	results := make([]job.Result, 0)
 	jobs := job.NewSubtitleScrapingJobFromUrls([]string{
 		"https://g1.globo.com/",
 		"https://www.bbc.com/portuguese",

@@ -1,5 +1,7 @@
 package job
 
+import "time"
+
 var (
 	jobCount = 0
 )
@@ -21,5 +23,12 @@ func NewSubtitleScrapingJob(url string) Job {
 		Variables: map[string]any{
 			"url": url,
 		},
+	}
+}
+
+func NewRunningResult() Result {
+	return Result{
+		StartedAt: time.Now(),
+		Status:    StatusRunning,
 	}
 }

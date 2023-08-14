@@ -3,7 +3,6 @@ package job
 import (
 	"errors"
 	"go_pubsub_job/internal/domain/job"
-	"go_pubsub_job/internal/domain/result"
 
 	"github.com/gocolly/colly/v2"
 )
@@ -23,8 +22,8 @@ func MakeJobExecutor(_job job.Job) (job.Executor, error) {
 
 type SubtitleScrapingExecutor struct{}
 
-func (j *SubtitleScrapingExecutor) Execute(_job job.Job) (result.Result, error) {
-	jobResult := result.NewRunningResult()
+func (j *SubtitleScrapingExecutor) Execute(_job job.Job) (job.Result, error) {
+	jobResult := job.NewRunningResult()
 	collector := colly.NewCollector()
 	subtitles := make([]string, 0)
 
