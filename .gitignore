@@ -24,3 +24,4 @@ go.work
 tmp
 bin
 .task
+venv
