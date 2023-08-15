@@ -3,31 +3,33 @@ package main
 import (
 	jobapp "go_pubsub_job/internal/app/job"
 	"go_pubsub_job/internal/domain/job"
+	"go_pubsub_job/internal/infrastructure/ctx"
+	"go_pubsub_job/internal/infrastructure/flag"
 	"log"
+
+	"cloud.google.com/go/pubsub"
 )
 
 func main() {
-	results := make([]job.Result, 0)
-	jobs := job.NewSubtitleScrapingJobFromUrls([]string{
-		"https://g1.globo.com/",
-		"https://www.bbc.com/portuguese",
-	})
-
-	for _, j := range jobs {
-		executor, err := jobapp.MakeJobExecutor(j)
-		if err != nil {
-			log.Printf("Err: %+v\n", err)
-			continue
-		}
-
-		result, err := executor.Execute(j)
-		if err != nil {
-			log.Printf("Err: %+v\n", err)
-			continue
-		}
-
-		results = append(results, result)
-
-		log.Printf("%+v\n", result)
+	projectName, subscriptionName, err := flag.ConsumerCliFlags()
+	if err != nil {
+		log.Fatalf("Err: %+v\n", err)
 	}
+
+	_ctx, cancel := ctx.NewTimeoutContext()
+	defer cancel()
+
+	client, err := pubsub.NewClient(_ctx, projectName)
+	if err != nil {
+		log.Fatalf("Err: %+v", err)
+	}
+
+	consumer := jobapp.PubSubJobConsumer{
+		Client:       *client,
+		Subscription: *client.Subscription(subscriptionName),
+	}
+
+	consumer.Consume(func(r job.Result) {
+		log.Printf("Result: %+v", r)
+	})
 }

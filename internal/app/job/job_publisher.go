@@ -1,6 +1,7 @@
 package job
 
 import (
+	"context"
 	"encoding/json"
 	"go_pubsub_job/internal/domain/job"
 	"go_pubsub_job/internal/infrastructure/ctx"
@@ -19,12 +20,16 @@ func (p *PubSubJobPublisher) Publish(_job job.Job) error {
 		return err
 	}
 
+	res := p.Topic.Publish(context.Background(), &pubsub.Message{
+		Data: jobJson,
+	})
+
 	_ctx, cancel := ctx.NewTimeoutContext()
 	defer cancel()
 
-	p.Topic.Publish(_ctx, &pubsub.Message{
-		Data: jobJson,
-	})
+	if _, err := res.Get(_ctx); err != nil {
+		return err
+	}
 
 	return nil
 }

@@ -10,16 +10,6 @@ const (
 	StatusFailed  = "failed"
 )
 
-type Executor interface {
-	Execute(Job) (Result, error)
-}
-
-type Publisher interface {
-	Publish(Job) error
-
-	PublishBatch([]Job) (uint, []error)
-}
-
 type Job struct {
 	Id        uint           `json:"id"`
 	Variables map[string]any `json:"variables"`
@@ -27,11 +17,11 @@ type Job struct {
 }
 
 type Result struct {
-	StartedAt  time.Time
-	FinishedAt time.Time
-	Data       map[string]any
-	Status     string
-	Error      string
+	StartedAt  time.Time      `json:"started_at"`
+	FinishedAt time.Time      `json:"finished_at"`
+	Data       map[string]any `json:"data"`
+	Status     string         `json:"status"`
+	Error      string         `json:"error"`
 }
 
 func (r *Result) SuccessWithData(data map[string]any) Result {
