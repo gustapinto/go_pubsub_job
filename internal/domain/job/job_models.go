@@ -17,11 +17,19 @@ type Job struct {
 }
 
 type Result struct {
-	StartedAt  time.Time      `json:"started_at"`
-	FinishedAt time.Time      `json:"finished_at"`
-	Data       map[string]any `json:"data"`
-	Status     string         `json:"status"`
-	Error      string         `json:"error"`
+	StartedAt    time.Time      `json:"started_at"`
+	FinishedAt   time.Time      `json:"finished_at"`
+	Data         map[string]any `json:"data"`
+	Status       string         `json:"status"`
+	Error        string         `json:"error"`
+	JobExecutor  string         `json:"job_executor"`
+	JobVariables map[string]any `json:"job_variables"`
+}
+
+func NewRunningResultFromJob(_job Job) Result {
+	// TODO - Mover NewRunningResult aqui
+
+	return Result{}
 }
 
 func (r *Result) SuccessWithData(data map[string]any) Result {

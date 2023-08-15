@@ -16,6 +16,13 @@ func main() {
 		log.Fatalf("Err: %+v\n", err)
 	}
 
+	// TODO - Obter lista de urls a partir de uma fonte dinâmica, como uma
+	// tabela do BigQuery
+	//
+	// TODO - Abstrair lógica de montagem dos jobs e publish deles para um
+	// service, do tipo:
+	//
+	// SubtitleScrapingService.PublishJobs(JobFactory.MakeBatch(), JobPublisher.PublishBatch()) error
 	jobs := job.NewSubtitleScrapingJobFromUrls([]string{
 		"https://g1.globo.com/",
 		"https://www.bbc.com/portuguese",
