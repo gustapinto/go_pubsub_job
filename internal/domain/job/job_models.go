@@ -16,7 +16,7 @@ type Job struct {
 	Executor  string         `json:"executor"`
 }
 
-type Result struct {
+type JobState struct {
 	StartedAt    time.Time      `json:"started_at"`
 	FinishedAt   time.Time      `json:"finished_at"`
 	Data         map[string]any `json:"data"`
@@ -26,14 +26,14 @@ type Result struct {
 	JobVariables map[string]any `json:"job_variables"`
 }
 
-func NewRunningResultFromJob(_job Job) Result {
-	// TODO - Mover NewRunningResult aqui
+func NewRunningJobStateFromJob(_job Job) JobState {
+	// TODO - Mover NewRunningJobState aqui
 
-	return Result{}
+	return JobState{}
 }
 
-func (r *Result) SuccessWithData(data map[string]any) Result {
-	return Result{
+func (r *JobState) SuccessWithData(data map[string]any) JobState {
+	return JobState{
 		StartedAt:  r.StartedAt,
 		FinishedAt: time.Now(),
 		Data:       data,
@@ -42,8 +42,8 @@ func (r *Result) SuccessWithData(data map[string]any) Result {
 	}
 }
 
-func (r *Result) FailedWithError(err error) Result {
-	return Result{
+func (r *JobState) FailedWithError(err error) JobState {
+	return JobState{
 		StartedAt:  r.StartedAt,
 		FinishedAt: time.Now(),
 		Data:       nil,

@@ -22,8 +22,8 @@ func MakeJobExecutor(_job job.Job) (job.Executor, error) {
 
 type SubtitleScrapingExecutor struct{}
 
-func (j *SubtitleScrapingExecutor) Execute(_job job.Job) (job.Result, error) {
-	jobResult := job.NewRunningResult()
+func (j *SubtitleScrapingExecutor) Execute(_job job.Job) (job.JobState, error) {
+	jobJobState := job.NewRunningJobState()
 	collector := colly.NewCollector()
 	subtitles := make([]string, 0)
 
@@ -33,14 +33,14 @@ func (j *SubtitleScrapingExecutor) Execute(_job job.Job) (job.Result, error) {
 
 	url, ok := _job.Variables["url"].(string)
 	if !ok {
-		return jobResult.FailedWithError(ErrInvalidUrlParse), ErrInvalidUrlParse
+		return jobJobState.FailedWithError(ErrInvalidUrlParse), ErrInvalidUrlParse
 	}
 
 	if err := collector.Visit(url); err != nil {
-		return jobResult.FailedWithError(err), nil
+		return jobJobState.FailedWithError(err), nil
 	}
 
-	return jobResult.SuccessWithData(map[string]any{
+	return jobJobState.SuccessWithData(map[string]any{
 		"subtitles": subtitles,
 	}), nil
 }

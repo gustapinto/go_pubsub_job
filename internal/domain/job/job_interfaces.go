@@ -1,7 +1,7 @@
 package job
 
 type Executor interface {
-	Execute(Job) (Result, error)
+	Execute(Job) (JobState, error)
 }
 
 type Publisher interface {
@@ -10,6 +10,8 @@ type Publisher interface {
 	PublishBatch([]Job) (uint, []error)
 }
 
+type JobStateHandler func(JobState)
+
 type Consumer interface {
-	Consume(func(Result)) error
+	Consume(JobStateHandler) error
 }

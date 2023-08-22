@@ -26,8 +26,8 @@ func NewSubtitleScrapingJob(url string) Job {
 	}
 }
 
-func NewRunningResult() Result {
-	return Result{
+func NewRunningJobState() JobState {
+	return JobState{
 		StartedAt: time.Now(),
 		Status:    StatusRunning,
 	}
