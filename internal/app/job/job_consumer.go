@@ -19,7 +19,7 @@ type PubSubJobConsumer struct {
 	Subscription pubsub.Subscription
 }
 
-func (c *PubSubJobConsumer) Consume(handler func(job.JobState)) error {
+func (c *PubSubJobConsumer) Consume(handler job.JobStateHandler) error {
 	if err := c.Subscription.Receive(context.Background(), func(ctx context.Context, m *pubsub.Message) {
 		var _job job.Job
 

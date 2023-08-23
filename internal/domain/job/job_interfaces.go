@@ -15,3 +15,9 @@ type JobStateHandler func(JobState)
 type Consumer interface {
 	Consume(JobStateHandler) error
 }
+
+type JobStateRepository interface {
+	Init() error
+
+	Save(JobState) (JobState, error)
+}

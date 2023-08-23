@@ -23,7 +23,7 @@ func MakeJobExecutor(_job job.Job) (job.Executor, error) {
 type SubtitleScrapingExecutor struct{}
 
 func (j *SubtitleScrapingExecutor) Execute(_job job.Job) (job.JobState, error) {
-	jobJobState := job.NewRunningJobState()
+	jobJobState := job.NewRunningJobStateFromJob(_job)
 	collector := colly.NewCollector()
 	subtitles := make([]string, 0)
 
