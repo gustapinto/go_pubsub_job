@@ -17,6 +17,7 @@ var (
 type PubSubJobConsumer struct {
 	Client       pubsub.Client
 	Subscription pubsub.Subscription
+	Repository   job.JobStateRepository
 }
 
 func (c *PubSubJobConsumer) Consume(handler job.JobStateHandler) error {
@@ -28,7 +29,7 @@ func (c *PubSubJobConsumer) Consume(handler job.JobStateHandler) error {
 			return
 		}
 
-		executor, err := MakeJobExecutor(_job)
+		executor, err := MakeJobExecutor(_job, c.Repository)
 		if err != nil {
 			log.Printf("Err: %+v\n", err)
 			return

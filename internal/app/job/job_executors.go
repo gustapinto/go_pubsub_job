@@ -11,19 +11,28 @@ var (
 	ErrInvalidUrlParse = errors.New("failed to parse url to string")
 )
 
-func MakeJobExecutor(_job job.Job) (job.Executor, error) {
+func MakeJobExecutor(_job job.Job, repository job.JobStateRepository) (job.Executor, error) {
 	switch _job.Executor {
 	case "SubtitleScrapingExecutor":
-		return &SubtitleScrapingExecutor{}, nil
+		return &SubtitleScrapingExecutor{
+			Repository: repository,
+		}, nil
 	}
 
 	return nil, errors.New("invalid job executor")
 }
 
-type SubtitleScrapingExecutor struct{}
+type SubtitleScrapingExecutor struct {
+	Repository job.JobStateRepository
+}
 
 func (j *SubtitleScrapingExecutor) Execute(_job job.Job) (job.JobState, error) {
-	jobJobState := job.NewRunningJobStateFromJob(_job)
+	state := job.NewRunningJobStateFromJob(_job)
+
+	if err := j.Repository.Save(state); err != nil {
+		return state, err
+	}
+
 	collector := colly.NewCollector()
 	subtitles := make([]string, 0)
 
@@ -33,14 +42,14 @@ func (j *SubtitleScrapingExecutor) Execute(_job job.Job) (job.JobState, error) {
 
 	url, ok := _job.Variables["url"].(string)
 	if !ok {
-		return jobJobState.FailedWithError(ErrInvalidUrlParse), ErrInvalidUrlParse
+		return state.FailedWithError(ErrInvalidUrlParse), ErrInvalidUrlParse
 	}
 
 	if err := collector.Visit(url); err != nil {
-		return jobJobState.FailedWithError(err), nil
+		return state.FailedWithError(err), nil
 	}
 
-	return jobJobState.SuccessWithData(map[string]any{
+	return state.SuccessWithData(map[string]any{
 		"subtitles": subtitles,
 	}), nil
 }

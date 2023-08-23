@@ -1,9 +1,9 @@
 package job
 
-import "time"
+import (
+	"time"
 
-var (
-	jobCount = 0
+	"github.com/google/uuid"
 )
 
 func NewSubtitleScrapingJobFromUrls(urls []string) []Job {
@@ -18,7 +18,7 @@ func NewSubtitleScrapingJobFromUrls(urls []string) []Job {
 
 func NewSubtitleScrapingJob(url string) Job {
 	return Job{
-		Id:       uint(jobCount),
+		Id:       uuid.New(),
 		Executor: "SubtitleScrapingExecutor",
 		Variables: map[string]any{
 			"url": url,

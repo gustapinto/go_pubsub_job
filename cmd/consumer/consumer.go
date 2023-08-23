@@ -6,6 +6,7 @@ import (
 	"go_pubsub_job/internal/infrastructure/flag"
 	"log"
 
+	"cloud.google.com/go/firestore"
 	"cloud.google.com/go/pubsub"
 )
 
@@ -23,26 +24,28 @@ func main() {
 		log.Fatalf("Err: %+v", err)
 	}
 
-	consumer := jobapp.PubSubJobConsumer{
-		Client:       *client,
-		Subscription: *client.Subscription(subscriptionName),
-	}
-	jobService := jobapp.JobService{
-		Consumer: &consumer,
-	}
+	_ctx, cancel = ctx.NewTimeoutContext()
+	defer cancel()
 
-	if err := jobService.InitDatabase(); err != nil {
+	firestoreClient, err := firestore.NewClient(_ctx, projectName)
+	if err != nil {
 		log.Fatalf("Err: %+v", err)
 	}
 
-	// TODO - Abstrair lógica de consumo em um service, também separar a função
-	// que lida com os resultados em uma interface do tipo ResultHandler.handle(Result),
-	//
-	// JobService.RunJobs(ResultHandler.Handle(), JobConsumer.Consume())
-	// consumer.Consume(func(r job.JobState) {
-	// TODO - Publicar resultados em duas tabelaa do big query, uma genérica
-	// para todos os resultados e outra específica, usando o tipo de job
-	// para determinar qual tabela usar
-	// log.Printf("Result: %+v", r)
-	// })
+	repository := &jobapp.JobStateFirestoreRepository{
+		Client: firestoreClient,
+	}
+	consumer := jobapp.PubSubJobConsumer{
+		Client:       *client,
+		Subscription: *client.Subscription(subscriptionName),
+		Repository:   repository,
+	}
+	jobService := jobapp.JobService{
+		Consumer:   &consumer,
+		Repository: repository,
+	}
+
+	if err := jobService.RunJobs(); err != nil {
+		log.Fatalf("Err: %+v", err)
+	}
 }

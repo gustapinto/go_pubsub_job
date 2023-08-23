@@ -13,9 +13,21 @@ const (
 )
 
 type Job struct {
-	Id        uint           `json:"id"`
+	Id        uuid.UUID      `json:"id"`
 	Variables map[string]any `json:"variables"`
 	Executor  string         `json:"executor"`
+}
+
+func (j *Job) Doc() string {
+	return j.Id.String()
+}
+
+func (j *Job) ToMap() map[string]any {
+	return map[string]any{
+		"id":        j.Id.String(),
+		"variables": j.Variables,
+		"executor":  j.Executor,
+	}
 }
 
 type JobState struct {
@@ -34,6 +46,22 @@ func NewRunningJobStateFromJob(_job Job) JobState {
 		StartedAt: time.Now(),
 		Status:    StatusRunning,
 		Job:       _job,
+	}
+}
+
+func (js *JobState) Doc() string {
+	return js.Id.String()
+}
+
+func (js *JobState) ToMap() map[string]any {
+	return map[string]any{
+		"id":          js.Id.String(),
+		"started_at":  js.StartedAt.Format("2006-01-02 15:04:05"),
+		"finished_at": js.FinishedAt.Format("2006-01-02 15:04:05"),
+		"data":        js.Data,
+		"status":      js.Status,
+		"error":       js.Error,
+		"job":         js.Job.ToMap(),
 	}
 }
 

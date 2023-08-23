@@ -17,7 +17,5 @@ type Consumer interface {
 }
 
 type JobStateRepository interface {
-	Init() error
-
-	Save(JobState) (JobState, error)
+	Save(JobState) error
 }
