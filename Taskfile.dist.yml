@@ -26,8 +26,10 @@ tasks:
 
   run:consumer:
     cmds:
-      - air -c ./cmd/consumer/.air.toml
+      - task: build:consumer
+      - ./bin/consumer {{ .CLI_ARGS }}
 
   run:publisher:
     cmds:
-      - air -c ./cmd/publisher/.air.toml
+      - task: build:publisher
+      - ./bin/publisher {{ .CLI_ARGS }}
