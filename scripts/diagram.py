@@ -8,7 +8,7 @@ with d.Diagram(name="Services", filename="services", curvestyle="curved"):
     publisher = pl.Go(label="Publisher", nodeid="publisher")
 
     with d.Cluster(label="Google Cloud Platform"):
-        pubsub = ga.PubSub(label="Pub/Sub jobs queue")
+        pubsub = ga.PubSub(label="Pub/Sub jobs topic")
         firestore = gd.Firestore(label="Firestore job status store")
 
     consumer = pl.Go(label="Consumer", nodeid="consumer")
